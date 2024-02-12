@@ -39,20 +39,37 @@
         foreach ($project as $item) : ?>
             <div class="col-lg-4 mb-lg-4 mb-4">
                 <div class="card">
+                    <div class="card-header pb-0">
+                        <div class="row">
+                            <div class="col-lg-6 col-7">
+                                <div class="avatar-group mt-2">
+                                    <?php
+                                    helper('avatar');
+                                    $no_gambar = 1;
+                                    foreach ($item['teamProject'] as $key) : ?>
+                                        <a href="javascript:;" class="avatar avatar-xs rounded-circle" data-bs-toggle="tooltip" data-bs-placement="bottom" title="<?= $key['name'] ?>">
+                                            <img src="<?= gravatar_url($key['email']) ?>" alt="team">
+                                        </a>
+                                    <?php endforeach ?>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-5 my-auto text-end">
+                                <div class="dropdown float-lg-end pe-4">
+                                    <a class="cursor-pointer" id="dropdownTable" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="fa fa-ellipsis-v text-secondary"></i>
+                                    </a>
+                                    <ul class="dropdown-menu px-2 py-3 ms-sm-n4 ms-n5" aria-labelledby="dropdownTable">
+                                        <li><a class="dropdown-item border-radius-md" href="javascript:;">Delete</a></li>
+                                        <li><a class="dropdown-item border-radius-md" href="javascript:;">Mark as Done</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-lg-12">
                                 <div class="d-flex flex-column h-100">
-                                    <div class="avatar-group mt-2">
-                                        <?php
-                                        helper('avatar');
-                                        $no_gambar = 1;
-                                        foreach ($item['teamProject'] as $key) : ?>
-                                            <a href="javascript:;" class="avatar avatar-xs rounded-circle" data-bs-toggle="tooltip" data-bs-placement="bottom" title="<?= $key['name'] ?>">
-                                                <img src="<?= gravatar_url($key['email']) ?>" alt="team">
-                                            </a>
-                                        <?php endforeach ?>
-                                    </div>
                                     <p class="mb-1 text-bold"><?= $item['client_name'] ?></p>
                                     <h5 class="font-weight-bolder"><?= $item['name'] ?></h5>
                                     <p class="mb-1 text-sm"><?= $item['start_date'] ?></p>

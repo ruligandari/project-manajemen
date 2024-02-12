@@ -28,7 +28,7 @@
                             </div>
                         </div>
                         <div class="progress">
-                            <div class="progress-bar bg-gradient-info w-<?= $project['progress'] ?>" role="progressbar" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
+                            <div class="progress-bar bg-gradient-info w-<?= floor($project['progress'] / 10) * 10 ?>" role="progressbar" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
                     </div>
                 </div>
@@ -169,16 +169,27 @@
                     <?php foreach ($project['tasks'] as $task) : ?>
                         <div class="col-12 col-xl-12 mt-2">
                             <div class="card h-100">
-                                <div class="card-body pb-0 px-3 py-3">
+                                <div class="card-body">
                                     <div class="row">
-                                        <div class="col-md-8 d-flex align-items-center">
+                                        <div class="col-11 d-flex align-items-center" <?= $task['status'] == 'Not Started' ? '' : 'data-bs-toggle="collapse" data-bs-target="#collapseExample' . $task['id_task'] . '" aria-expanded="false" aria-controls="collapseExample' . $task['id_task'] . '"' ?>>
                                             <h6 class="mb-0"><?= $task['task'] ?></h6>
                                             <span class="badge bg-gradient-success mx-3"><?= $task['status'] ?></span>
                                         </div>
-                                        <div class="col-md-4 text-end">
-                                            <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample<?= $task['id_task'] ?>" aria-expanded="false" aria-controls="collapseExample<?= $task['id_task'] ?>">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
+                                        <div class="col-1 my-auto text-end ">
+                                            <div class="dropdown float-lg-end pe-4">
+                                                <a class="cursor-pointer" id="dropdownTable" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <i class="fa fa-ellipsis-v text-secondary"></i>
+                                                </a>
+                                                <ul class="dropdown-menu px-2 py-3 ms-sm-n4 ms-n5" aria-labelledby="dropdownTable">
+                                                    <li><a class="dropdown-item border-radius-md text-danger" href="javascript:;"><i class="fa fa-trash text-danger"></i>&nbsp;&nbsp;Delete</a></li>
+                                                    <?php if (!$task['status'] == 'Done' || $task['status'] == 'On Progress') : ?>
+                                                        <li><button class="dropdown-item border-radius-md" onclick="markAsDone('<?= $task['id_task'] ?>','<?= $task['task'] ?>', '<?= $project['id_project'] ?>')"><i class="fa fa-check text-secondary"></i>&nbsp;&nbsp;Selesai</button></li>
+                                                    <?php endif ?>
+                                                    <?php if ($task['status'] == 'Not Started') : ?>
+                                                        <li><button class="dropdown-item border-radius-md" onclick="startTask('<?= $task['id_task'] ?>')"><i class="fa fa-check text-secondary"></i>&nbsp;&nbsp;Mulai Task</button></li>
+                                                    <?php endif ?>
+                                                </ul>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -189,7 +200,7 @@
                                                 <li class="list-group-item border-0 d-flex p-4 mb-2 bg-gray-100 border-radius-lg">
                                                     <div class="d-flex flex-column">
                                                         <h6 class="mb-3 text-sm"><?= $activity['team_name'] . ' - ' . $activity['created_at'] ?></h6>
-                                                        <span class="mb-2 text-xs"><?= $activity['activity'] ?></span>
+                                                        <?= $activity['activity'] ?>
                                                     </div>
                                                     <!-- <div class="ms-auto text-end">
                                                         <a class="btn btn-link text-danger text-gradient px-3 mb-0" href="javascript:;"><i class="fas fa-trash-alt me-2"></i>Delete</a>
@@ -234,14 +245,13 @@
                 <form action="<?= base_url('dashboard/project/task/' . $project['id_project']) ?>" method="POST">
                     <div class="mb-3">
                         <label for="task" class="form-label">Task</label>
-                        <input type="text" class="form-control" id="task" name="task">
+                        <input type="text" class="form-control" placeholder="Masukan Task" id="task" name="task" required>
                     </div>
                     <div class="mb-3">
                         <label for="status" class="form-label">Status</label>
                         <select class="form-select" id="status" name="status">
                             <option value="Not Started" selected>Not Started</option>
                             <option value="On Progress">On Progress</option>
-                            <option value="Done">Done</option>
                         </select>
                     </div>
 
@@ -257,6 +267,7 @@
 <?= $this->endSection(); ?>
 
 <?= $this->section('script'); ?>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 <script>
     <?php foreach ($project['tasks'] as $items) : ?>
         ClassicEditor
@@ -266,6 +277,61 @@
             });
 
     <?php endforeach ?>
+
+    function markAsDone(id_task, name, id_project) {
+        Swal.fire({
+            title: 'Apakah anda yakin?',
+            text: "Task " + name + " akan di tandai sebagai selesai",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Selesai'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '<?= base_url('dashboard/project/task/mark-as-done/') ?>',
+                    type: 'POST',
+                    data: {
+                        id_task: id_task,
+                        id_project: id_project
+                    },
+                    success: function(res) {
+                        console.log(res);
+                        Swal.fire(
+                            'Berhasil!',
+                            'Task telah di tandai sebagai selesai, ' + res.progress + '%',
+                            'success'
+                        ).then((result) => {
+                            location.reload();
+                        });
+                    }
+                });
+            }
+        })
+
+    }
+
+    function startTask(id) {
+        $.ajax({
+            url: '<?= base_url('dashboard/project/task/start-task/') ?>',
+            type: 'POST',
+            data: {
+                id_task: id
+            },
+            success: function(res) {
+                console.log(res);
+                Swal.fire(
+                    'Berhasil!',
+                    'Task telah di mulai',
+                    'success'
+                ).then((result) => {
+                    location.reload();
+                });
+            }
+        });
+
+    }
 </script>
 
 <?= $this->endSection(); ?>

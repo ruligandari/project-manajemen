@@ -171,4 +171,72 @@ class ProjectController extends BaseController
         }
         return $this->response->setJSON($data);
     }
+
+    public function markAsDone()
+    {
+        $id_task = $this->request->getVar('id_task');
+        $id_project = $this->request->getVar('id_project');
+        $taskModel = new TaskModel();
+        $data = [
+            'status' => 'Done',
+            'updated_at' => date('Y-m-d H:i:s')
+        ];
+        //   insert data
+        try {
+            $taskModel->update($id_task, $data);
+
+            // cari task dengan id project dan status done
+            $taskDone = $taskModel->where('id_project', $id_project)->where('status', 'Done')->findAll();
+            $allTask = $taskModel->where('id_project', $id_project)->findAll();
+            // hitung jumlah task yang statusnya done lalu konversi ke persen
+            $progress = count($taskDone) / count($allTask) * 100;
+            // menghilangkan contoh 54.54545454545454 menjadi 54
+            $progress = round($progress);
+
+            // update project dengan project_id update progress
+            $projectModel = new \App\Models\ProjectModel();
+            $dataProject = [
+                'progress' => $progress,
+                'updated_at' => date('Y-m-d H:i:s')
+            ];
+            $projectModel->update($id_project, $dataProject);
+
+            // jika progress 100% maka update status project menjadi completed
+            if ($progress == 100) {
+                $dataProject = [
+                    'status' => 'Completed',
+                    'updated_at' => date('Y-m-d H:i:s')
+                ];
+                $projectModel->update($id_project, $dataProject);
+            } else {
+                $dataProject = [
+                    'status' => 'On Progress',
+                    'updated_at' => date('Y-m-d H:i:s')
+                ];
+                $projectModel->update($id_project, $dataProject);
+            }
+        } catch (\Exception $e) {
+            return $this->response->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR, $e->getMessage());
+        }
+        // redirect back
+        return json_encode(['success' => 'Task has been marked as done', 'progress' => $progress]);
+    }
+
+    public function startTask()
+    {
+        $id_task = $this->request->getVar('id_task');
+        $taskModel = new TaskModel();
+        $data = [
+            'status' => 'On Progress',
+            'updated_at' => date('Y-m-d H:i:s')
+        ];
+        //   insert data
+        try {
+            $taskModel->update($id_task, $data);
+        } catch (\Exception $e) {
+            return $this->response->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR, $e->getMessage());
+        }
+        // redirect back
+        return json_encode(['success' => 'Task has been started']);
+    }
 }
