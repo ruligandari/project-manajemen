@@ -98,13 +98,13 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Tambah Customer Baru</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Tambah Team Baru</h5>
                     <button type="button" class="btn-close text-dark" data-bs-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form action="<?= base_url('dashboard/customer/') ?>" method="POST">
+                    <form action="<?= base_url('dashboard/team/') ?>" method="POST">
                         <div class="mb-3">
                             <label for="task" class="form-label">Nama Lengkap</label>
                             <input type="text" class="form-control" id="task" name="name" required>

@@ -168,7 +168,7 @@
                     <h6>Activity overview</h6>
                     <p class="text-sm">
                         <i class="fa fa-arrow-up text-success" aria-hidden="true"></i>
-                        <span class="font-weight-bold">Aktifitas Anda</span> terakhir
+                        <span class="font-weight-bold">Aktifitas</span> terakhir
                     </p>
                 </div>
                 <div class="card-body p-3">
